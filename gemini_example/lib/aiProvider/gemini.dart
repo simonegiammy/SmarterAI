@@ -15,7 +15,7 @@ class GeminiProvider {
     gemini.text(text).then((value) => print(value?.output));
   }
 
-  static Future<List?> elaboraPdf(PlatformFile file) async {
+  static Future<List?> elaboraPdf(PlatformFile file, int number) async {
     File pdfFile = File(file.path!);
     List<File> images = await convertPdfToImage(pdfFile);
     List<Uint8List> imagesGemini = [];
@@ -25,9 +25,8 @@ class GeminiProvider {
 
     String output = (await gemini.textAndImage(
             text:
-                """Elabora questo file e genera 2 domande a risposta multipla con una sola risposta corretta. Il tuo output deve essere in JSON con i caratteri d'escape necessari nel seguente formato:
+                """Elabora questo file e genera $number domande a risposta multipla con una sola risposta corretta, le altre risposte devono essere SBAGLIATE rispetto alla domanda. Il tuo output deve essere in JSON con i caratteri d'escape necessari nel seguente formato:
                   [{ "question": "la tua domanda elaborata", "answers": "["domanda1", "domanda2", ...], "correct": intero che indica l'indice della domanda corretta,  "explanation": "spiegazione del perchè"},...]
-                
                   """,
 
             /// text

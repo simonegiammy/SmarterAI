@@ -9,7 +9,7 @@ class GeminiTextField extends StatelessWidget {
     return TextField(
       controller: controller,
       minLines: 1,
-      maxLines: 7,
+      maxLines: 1,
       style: Theme.of(context).textTheme.bodyMedium,
       decoration: const InputDecoration(
           contentPadding: EdgeInsets.all(12),

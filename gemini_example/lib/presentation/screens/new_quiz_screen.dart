@@ -1,9 +1,10 @@
-import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:gemini_example/aiProvider/gemini.dart';
+import 'package:gemini_example/aiProvider/storage.dart';
 import 'package:gemini_example/constants.dart';
+import 'package:gemini_example/data/models/question.dart';
+import 'package:gemini_example/data/models/quiz.dart';
 import 'package:gemini_example/presentation/widgets/add_new_button.dart';
 import 'package:gemini_example/presentation/widgets/file_tile.dart';
 import 'package:gemini_example/presentation/widgets/primary_button.dart';
@@ -23,22 +24,23 @@ class _NewQuizScreenState extends State<NewQuizScreen> {
   List<PlatformFile> uploadedFiles = [];
   int numberQuestion = 5;
   bool penalty = false;
+  bool loading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        centerTitle: false,
+        title: Text(
+          "CREA UN NUOVO QUIZ",
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+      ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 72, 16, 0),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "CREA UN NUOVO QUIZ",
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(
-                height: 16,
-              ),
               Text(
                 "Seleziona la materia:",
                 style: Theme.of(context).textTheme.bodyLarge,
@@ -65,7 +67,7 @@ class _NewQuizScreenState extends State<NewQuizScreen> {
                 height: 14,
               ),
               Text(
-                "Inserisci gli argomenti: ",
+                "Inserisci il titolo del quiz: ",
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(
@@ -145,23 +147,36 @@ class _NewQuizScreenState extends State<NewQuizScreen> {
                 ],
               ),
               const Divider(),
+              const SizedBox(
+                height: 14,
+              ),
               Center(
                 child: PrimaryButton(
+                  loading: loading,
                   onTap: () async {
-                    if (uploadedFiles.isNotEmpty) {
-                      print("elaboro file");
+                    if (uploadedFiles.isNotEmpty &&
+                        selectedMateria != null &&
+                        controller.text.isNotEmpty) {
                       try {
-                        List? lista =
-                            await GeminiProvider.elaboraPdf(uploadedFiles[0]);
-
-                        // print(rit);
-                      } catch (e) {
-                        print(e);
-                      }
-                    } else {
-                      print("elaboro chat");
-
-                      GeminiProvider.chat(controller.text);
+                        setState(() {
+                          loading = true;
+                        });
+                        List? lista = await GeminiProvider.elaboraPdf(
+                            uploadedFiles[0], numberQuestion);
+                        List<Question> questions =
+                            lista!.map((e) => Question.fromJson(e)).toList();
+                        Quiz quiz = Quiz(
+                            title: controller.text,
+                            questions: questions,
+                            tag: selectedMateria!,
+                            penalty: penalty);
+                        Storage.saveQuiz(quiz);
+                        setState(() {
+                          loading = false;
+                        });
+                        Navigator.pop(context, true);
+                        //Ritorna alla home e visualizza tutti i quiz
+                      } catch (e) {}
                     }
                   },
                   text: "CREA NUOVO QUIZ",
