@@ -1,4 +1,4 @@
-import 'package:gemini_example/data/models/question.dart';
+import 'package:SmarterAI/data/models/question.dart';
 
 class Quiz {
   String title;

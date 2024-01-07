@@ -21,7 +21,7 @@ class PrimaryButton extends StatelessWidget {
         child: Container(
             padding: const EdgeInsets.all(12),
             child: loading
-                ? const CircularProgressIndicator()
+                ? const Center(child: CircularProgressIndicator())
                 : Center(
                     child: Text(
                       text,

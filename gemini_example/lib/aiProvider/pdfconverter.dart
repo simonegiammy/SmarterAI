@@ -8,9 +8,7 @@ Future<List<File>> convertPdfToImage(File pdfFile) async {
   // Carica il documento PDF
   final document = await PdfDocument.openFile(pdfFile.path);
 
-  for (int i = 1; i <= 16; i++) {
-    //Gemini non accetta più di 16 immagini
-
+  for (int i = 1; i <= document.pagesCount && i <= 15; i++) {
     // Ottieni la pagina
     final page = await document.getPage(i);
     // Renderizza l'immagine della pagina

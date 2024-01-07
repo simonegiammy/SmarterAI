@@ -1,7 +1,7 @@
 import 'dart:convert';
 
+import 'package:SmarterAI/data/models/quiz.dart';
 import 'package:flutter/foundation.dart';
-import 'package:gemini_example/data/models/quiz.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Storage {
@@ -12,6 +12,20 @@ class Storage {
     String uniqueKey =
         "${quiz.title}-${DateTime.now().hour - DateTime.now().minute}";
     sp.setString(uniqueKey, quizJson);
+  }
+
+  static Future<void> deleteQuiz(Quiz quiz) async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    var keys = sp.getKeys().toList();
+    for (String key in keys) {
+      if (key.contains(quiz.title)) {
+        Quiz q = Quiz.fromJson(jsonDecode((sp.getString(key)!)));
+        if (q.title == quiz.title && q.tag == quiz.tag) {
+          sp.remove(key);
+          return;
+        }
+      }
+    }
   }
 
   static Future<List<Quiz>> getAllQuiz() async {

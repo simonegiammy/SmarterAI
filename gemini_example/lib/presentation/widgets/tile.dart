@@ -20,17 +20,18 @@ class SubjectTile extends StatelessWidget {
                 !selected ? const Color(0xff3A3030) : const Color(0xffD9D9D9),
             borderRadius: const BorderRadius.all(Radius.circular(10))),
         child: Container(
-          width: (MediaQuery.of(context).size.width - 50) / 2,
           padding: const EdgeInsets.all(12),
-          child: Text(
-            text,
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-            style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                  color: selected
-                      ? const Color(0xff3A3030)
-                      : const Color(0xffD9D9D9),
-                ),
+          child: Center(
+            child: Text(
+              text,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    color: selected
+                        ? const Color(0xff3A3030)
+                        : const Color(0xffD9D9D9),
+                  ),
+            ),
           ),
         ),
       ),
@@ -59,15 +60,18 @@ class AnswerTile extends StatelessWidget {
             borderRadius: const BorderRadius.all(Radius.circular(10))),
         child: Container(
           padding: const EdgeInsets.all(12),
-          child: Text(
-            text,
-            //overflow: TextOverflow.ellipsis,
-            maxLines: null,
-            style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                  color: selected
-                      ? const Color(0xff3A3030)
-                      : const Color(0xffD9D9D9),
-                ),
+          child: Center(
+            child: Text(
+              text,
+              //overflow: TextOverflow.ellipsis,
+              maxLines: null,
+              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    height: 1.4,
+                    color: selected
+                        ? const Color(0xff3A3030)
+                        : const Color(0xffD9D9D9),
+                  ),
+            ),
           ),
         ),
       ),

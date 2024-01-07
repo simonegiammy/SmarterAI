@@ -1,8 +1,8 @@
-import 'package:flutter/foundation.dart';
+import 'package:SmarterAI/aiProvider/gemini.dart';
+import 'package:SmarterAI/data/models/quiz.dart';
+import 'package:SmarterAI/presentation/widgets/primary_button.dart';
+import 'package:SmarterAI/presentation/widgets/tile.dart';
 import 'package:flutter/material.dart';
-import 'package:gemini_example/data/models/quiz.dart';
-import 'package:gemini_example/presentation/widgets/primary_button.dart';
-import 'package:gemini_example/presentation/widgets/tile.dart';
 
 class QuizScreen extends StatefulWidget {
   final Quiz quiz;
@@ -14,8 +14,9 @@ class QuizScreen extends StatefulWidget {
 
 class _QuizScreenState extends State<QuizScreen> {
   List<int> answersGiven = [];
-  int i = 1;
+  int i = 0;
   String? selectedAnswer;
+  bool loading = false;
   @override
   void initState() {
     for (int j = 0; j < widget.quiz.questions.length; j++) {
@@ -30,7 +31,7 @@ class _QuizScreenState extends State<QuizScreen> {
       appBar: AppBar(
         centerTitle: false,
         title: Text(
-          "DOMANDA $i di ${widget.quiz.questions.length}",
+          "DOMANDA ${i + 1} di ${widget.quiz.questions.length}",
           style: Theme.of(context).textTheme.titleLarge,
         ),
       ),
@@ -40,6 +41,10 @@ class _QuizScreenState extends State<QuizScreen> {
           children: [
             Text(
               widget.quiz.questions[i].question,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium!
+                  .copyWith(height: 1.2),
             ),
             const Divider(),
             for (String answer in widget.quiz.questions[i].answers)
@@ -54,7 +59,8 @@ class _QuizScreenState extends State<QuizScreen> {
                           selectedAnswer = answer;
                         });
                       },
-                      selected: selectedAnswer == answer)),
+                      selected: answersGiven[i] ==
+                          widget.quiz.questions[i].answers.indexOf(answer))),
             Expanded(child: Container()),
             const Divider(),
             Row(
@@ -62,13 +68,50 @@ class _QuizScreenState extends State<QuizScreen> {
               children: [
                 Expanded(
                     child: PrimaryButton(
-                        onTap: () {}, text: "Indietro", loading: false)),
+                        onTap: () {
+                          if (i > 0) {
+                            setState(() {
+                              i--;
+                            });
+                          }
+                        },
+                        text: "Indietro",
+                        loading: false)),
                 const SizedBox(
                   width: 16,
                 ),
                 Expanded(
                     child: PrimaryButton(
-                        onTap: () {}, text: "Avanti", loading: false))
+                        onTap: () async {
+                          if (i < answersGiven.length - 1 &&
+                              answersGiven[i] != -1) {
+                            setState(() {
+                              i++;
+                            });
+                          } else if (answersGiven[i] != -1) {
+                            double punteggio =
+                                _calcolaPunteggio(answersGiven, widget.quiz);
+                            setState(() => loading = true);
+                            String explanation = await GeminiProvider.chat(
+                                "Scrivi un commento di massimo 50 caratteri per una persona che in un quiz ha totalizzato un punteggio di $punteggio su 30");
+                            setState(() => loading = false);
+                            Navigator.popUntil(
+                                context, (route) => route.isFirst);
+
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                    content: FinishQuizDialog(
+                                  punteggio: punteggio,
+                                  explanation: explanation,
+                                ));
+                              },
+                            );
+                          }
+                        },
+                        text: "Avanti",
+                        loading: loading))
               ],
             ),
             const SizedBox(
@@ -77,6 +120,63 @@ class _QuizScreenState extends State<QuizScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+double _calcolaPunteggio(List<int> answers, Quiz quiz) {
+  double p = 0;
+  for (int i = 0; i < answers.length; i++) {
+    if (answers[i] == quiz.questions[i].correct) {
+      p++;
+    }
+  }
+
+  return (p / answers.length) * 30;
+}
+
+class FinishQuizDialog extends StatelessWidget {
+  final double punteggio;
+  final String explanation;
+  const FinishQuizDialog(
+      {super.key, required this.punteggio, required this.explanation});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          "Hai totalizzato un punteggio di:",
+          style: Theme.of(context).textTheme.titleMedium,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(
+          height: 4,
+        ),
+        Text(
+          "${punteggio.toStringAsFixed(2)}/30",
+          style: Theme.of(context).textTheme.titleLarge,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(
+          height: 8,
+        ),
+        Text(
+          explanation,
+          style: Theme.of(context).textTheme.titleMedium!.copyWith(height: 1.2),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(
+          height: 16,
+        ),
+        PrimaryButton(
+            onTap: () {
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+            text: "Torna alla home",
+            loading: false)
+      ],
     );
   }
 }
