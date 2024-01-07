@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:SmarterAI/aiProvider/gemini.dart';
 import 'package:SmarterAI/data/models/quiz.dart';
 import 'package:SmarterAI/presentation/widgets/primary_button.dart';
@@ -17,6 +19,7 @@ class _QuizScreenState extends State<QuizScreen> {
   int i = 0;
   String? selectedAnswer;
   bool loading = false;
+  bool showAnswer = false;
   @override
   void initState() {
     for (int j = 0; j < widget.quiz.questions.length; j++) {
@@ -61,7 +64,38 @@ class _QuizScreenState extends State<QuizScreen> {
                       },
                       selected: answersGiven[i] ==
                           widget.quiz.questions[i].answers.indexOf(answer))),
-            Expanded(child: Container()),
+            Expanded(
+                child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        "Mostra la risposta corretta",
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                    GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            showAnswer = !showAnswer;
+                          });
+                        },
+                        child: Transform.rotate(
+                          angle: showAnswer ? pi / 2 : 0,
+                          child: const Icon(Icons.arrow_forward_ios),
+                        ))
+                  ],
+                ),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  child: showAnswer
+                      ? Text(widget.quiz.questions[i].explanation)
+                      : null,
+                ),
+              ],
+            )),
             const Divider(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -87,6 +121,7 @@ class _QuizScreenState extends State<QuizScreen> {
                               answersGiven[i] != -1) {
                             setState(() {
                               i++;
+                              showAnswer = false;
                             });
                           } else if (answersGiven[i] != -1) {
                             double punteggio =
