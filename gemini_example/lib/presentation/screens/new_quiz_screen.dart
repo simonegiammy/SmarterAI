@@ -213,7 +213,13 @@ class _NewQuizScreenState extends State<NewQuizScreen> {
                                 .toList());
                           }
                         }
+                        if (questions.isEmpty) {
+                          setState(() {
+                            loading = false;
+                          });
 
+                          return;
+                        }
                         Quiz quiz = Quiz(
                             title: controller.text,
                             questions: questions,
@@ -221,10 +227,6 @@ class _NewQuizScreenState extends State<NewQuizScreen> {
                             penalty: penalty);
 
                         Storage.saveQuiz(quiz);
-
-                        setState(() {
-                          loading = false;
-                        });
 
                         Navigator.pop(context, true);
                         //Ritorna alla home e visualizza tutti i quiz
