@@ -3,6 +3,8 @@ import 'package:SmarterAI/presentation/screens/home_screen.dart';
 import 'package:SmarterAI/theme.dart';
 import 'package:flutter/material.dart';
 
+import 'aiProvider/gemini.dart';
+
 void main() {
   GeminiProvider.setup();
   runApp(const MyApp());

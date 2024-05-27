@@ -186,7 +186,7 @@ class _NewQuizScreenState extends State<NewQuizScreen> {
                 child: PrimaryButton(
                   loading: loading,
                   onTap: () async {
-                    if (uploadedFiles.isNotEmpty &&
+                    if (
                         selectedMateria != null &&
                         controller.text.isNotEmpty) {
                       try {
@@ -200,11 +200,11 @@ class _NewQuizScreenState extends State<NewQuizScreen> {
                           List? lista;
                           if (numberQuestion >= 5) {
                             lista = await GeminiProvider.elaboraPdf(
-                                uploadedFiles[0], 5);
+                                5, controller.text);
                             numberQuestion -= 5;
                           } else {
                             lista = await GeminiProvider.elaboraPdf(
-                                uploadedFiles[0], numberQuestion);
+                                 numberQuestion, controller.text);
                             numberQuestion = 0;
                           }
                           if (lista != null) {

@@ -1,4 +1,5 @@
 import 'package:SmarterAI/constants.dart';
+import 'package:SmarterAI/presentation/screens/chat_screen.dart';
 import 'package:SmarterAI/presentation/screens/new_quiz_screen.dart';
 import 'package:SmarterAI/presentation/widgets/quiz_list.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +46,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   for (String materia in GeminiCostants.materie)
                     QuizListView(title: materia)
+                    , 
+                    SizedBox(
+                      height: 12,
+                    ),
+                  TextButton(onPressed: (){
+                    Navigator.push(context, MaterialPageRoute(builder:(context) {
+                      return ChatScreen();
+                    },));
+                  }, child: Text(
+                    "Vai alla chat"
+                  ))
                 ],
               ),
             ),
