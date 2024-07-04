@@ -1,4 +1,4 @@
-package com.example.gemini_example
+package com.example.smarter_ai
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,7 +1,7 @@
-import 'package:SmarterAI/constants.dart';
-import 'package:SmarterAI/presentation/screens/chat_screen.dart';
+import 'package:SmarterAI/aiProvider/storage.dart';
 import 'package:SmarterAI/presentation/screens/new_quiz_screen.dart';
 import 'package:SmarterAI/presentation/widgets/quiz_list.dart';
+import 'package:SmarterAI/presentation/widgets/textfield.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -12,6 +12,20 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  List<String> subjects = [];
+  TextEditingController inputController = TextEditingController();
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      subjects = await Storage.getAllSubjects();
+      if (mounted) {
+        setState(() {});
+      }
+    });
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,19 +58,44 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  for (String materia in GeminiCostants.materie)
-                    QuizListView(title: materia)
-                    , 
-                    SizedBox(
-                      height: 12,
-                    ),
-                  TextButton(onPressed: (){
-                    Navigator.push(context, MaterialPageRoute(builder:(context) {
-                      return ChatScreen();
-                    },));
-                  }, child: Text(
-                    "Vai alla chat"
-                  ))
+                  for (String materia in subjects) QuizListView(title: materia),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GeminiTextField(
+                          hint: "Inserisci nuova materia",
+                          controller: inputController,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 12,
+                      ),
+                      SizedBox(
+                          width: 48,
+                          height: 48,
+                          child: GestureDetector(
+                            onTap: () async {
+                              if (inputController.text.isNotEmpty) {
+                                await Storage.saveNewSubject(
+                                    inputController.text);
+                                inputController.clear();
+                                subjects = await Storage.getAllSubjects();
+                                if (mounted) {
+                                  setState(() {});
+                                }
+                              }
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(8)),
+                                color: const Color(0xfff0f0f0).withOpacity(0.2),
+                              ),
+                              child: const Icon(Icons.add),
+                            ),
+                          )),
+                    ],
+                  )
                 ],
               ),
             ),

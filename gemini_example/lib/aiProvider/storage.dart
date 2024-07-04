@@ -32,7 +32,7 @@ class Storage {
     List<Quiz> quizes = [];
     SharedPreferences sp = await SharedPreferences.getInstance();
     List<String> keys = sp.getKeys().toList();
-
+    keys.removeWhere((element) => element == "subjects");
     try {
       for (String key in keys) {
         quizes.add(Quiz.fromJson(jsonDecode(sp.getString(key)!)));
@@ -42,5 +42,17 @@ class Storage {
           "Il recupero dei quiz dallo storage si è fermato per il seguente motivo: $e");
     }
     return quizes;
+  }
+
+  static Future<void> saveNewSubject(String sub) async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    List<String> subjects = sp.getStringList("subjects") ?? [];
+    subjects.add(sub);
+    sp.setStringList("subjects", subjects);
+  }
+
+  static Future<List<String>> getAllSubjects() async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    return sp.getStringList("subjects") ?? [];
   }
 }

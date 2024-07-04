@@ -40,119 +40,120 @@ class _QuizScreenState extends State<QuizScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          children: [
-            Text(
-              widget.quiz.questions[i].question,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium!
-                  .copyWith(height: 1.2),
-            ),
-            const Divider(),
-            for (String answer in widget.quiz.questions[i].answers)
-              Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: AnswerTile(
-                      text: answer,
-                      onTap: () {
-                        setState(() {
-                          answersGiven[i] =
-                              widget.quiz.questions[i].answers.indexOf(answer);
-                          selectedAnswer = answer;
-                        });
-                      },
-                      selected: answersGiven[i] ==
-                          widget.quiz.questions[i].answers.indexOf(answer))),
-            Expanded(
-                child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        "Mostra la risposta corretta",
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                    GestureDetector(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Text(
+                widget.quiz.questions[i].question,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium!
+                    .copyWith(height: 1.2),
+              ),
+              const Divider(),
+              for (String answer in widget.quiz.questions[i].answers)
+                Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: AnswerTile(
+                        text: answer,
                         onTap: () {
                           setState(() {
-                            showAnswer = !showAnswer;
+                            answersGiven[i] = widget.quiz.questions[i].answers
+                                .indexOf(answer);
+                            selectedAnswer = answer;
                           });
                         },
-                        child: Transform.rotate(
-                          angle: showAnswer ? pi / 2 : 0,
-                          child: const Icon(Icons.arrow_forward_ios),
-                        ))
-                  ],
-                ),
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  child: showAnswer
-                      ? Text(widget.quiz.questions[i].explanation)
-                      : null,
-                ),
-              ],
-            )),
-            const Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                    child: PrimaryButton(
-                        onTap: () {
-                          if (i > 0) {
+                        selected: answersGiven[i] ==
+                            widget.quiz.questions[i].answers.indexOf(answer))),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          "Mostra la risposta corretta",
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                      GestureDetector(
+                          onTap: () {
                             setState(() {
-                              i--;
+                              showAnswer = !showAnswer;
                             });
-                          }
-                        },
-                        text: "Indietro",
-                        loading: false)),
-                const SizedBox(
-                  width: 16,
-                ),
-                Expanded(
-                    child: PrimaryButton(
-                        onTap: () async {
-                          if (i < answersGiven.length - 1 &&
-                              answersGiven[i] != -1) {
-                            setState(() {
-                              i++;
-                              showAnswer = false;
-                            });
-                          } else if (answersGiven[i] != -1) {
-                            double punteggio =
-                                _calcolaPunteggio(answersGiven, widget.quiz);
-                            setState(() => loading = true);
-                            String explanation = await GeminiProvider.chat(
-                                "Scrivi un commento di massimo 50 caratteri per una persona che in un quiz ha totalizzato un punteggio di $punteggio su 30");
-                            setState(() => loading = false);
-                            Navigator.popUntil(
-                                context, (route) => route.isFirst);
+                          },
+                          child: Transform.rotate(
+                            angle: showAnswer ? pi / 2 : 0,
+                            child: const Icon(Icons.arrow_forward_ios),
+                          ))
+                    ],
+                  ),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    child: showAnswer
+                        ? Text(widget.quiz.questions[i].explanation)
+                        : null,
+                  ),
+                ],
+              ),
+              const Divider(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                      child: PrimaryButton(
+                          onTap: () {
+                            if (i > 0) {
+                              setState(() {
+                                i--;
+                              });
+                            }
+                          },
+                          text: "Indietro",
+                          loading: false)),
+                  const SizedBox(
+                    width: 16,
+                  ),
+                  Expanded(
+                      child: PrimaryButton(
+                          onTap: () async {
+                            if (i < answersGiven.length - 1 &&
+                                answersGiven[i] != -1) {
+                              setState(() {
+                                i++;
+                                showAnswer = false;
+                              });
+                            } else if (answersGiven[i] != -1) {
+                              double punteggio =
+                                  _calcolaPunteggio(answersGiven, widget.quiz);
+                              setState(() => loading = true);
+                              String explanation = await GeminiProvider.chat(
+                                  "Scrivi un commento di massimo 50 caratteri per una persona che in un quiz ha totalizzato un punteggio di $punteggio su 30");
+                              setState(() => loading = false);
+                              Navigator.popUntil(
+                                  context, (route) => route.isFirst);
 
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                    content: FinishQuizDialog(
-                                  punteggio: punteggio,
-                                  explanation: explanation,
-                                ));
-                              },
-                            );
-                          }
-                        },
-                        text: "Avanti",
-                        loading: loading))
-              ],
-            ),
-            const SizedBox(
-              height: 32,
-            )
-          ],
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                      content: FinishQuizDialog(
+                                    punteggio: punteggio,
+                                    explanation: explanation,
+                                  ));
+                                },
+                              );
+                            }
+                          },
+                          text: "Avanti",
+                          loading: loading))
+                ],
+              ),
+              const SizedBox(
+                height: 32,
+              )
+            ],
+          ),
         ),
       ),
     );

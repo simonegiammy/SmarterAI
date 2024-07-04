@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "763690946827",
+    "project_id": "smarterai-29ddf",
+    "storage_bucket": "smarterai-29ddf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:763690946827:android:63f097d5c2d1dbaa74520e",
+        "android_client_info": {
+          "package_name": "com.example.smarter_ai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkVHBkbr-Sz5yc9lBgDf4FuCHwWRcSMeE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,6 +1,5 @@
 import 'package:SmarterAI/aiProvider/gemini.dart';
 import 'package:SmarterAI/aiProvider/storage.dart';
-import 'package:SmarterAI/constants.dart';
 import 'package:SmarterAI/data/models/question.dart';
 import 'package:SmarterAI/data/models/quiz.dart';
 import 'package:SmarterAI/presentation/widgets/add_new_button.dart';
@@ -21,9 +20,22 @@ class _NewQuizScreenState extends State<NewQuizScreen> {
   String? selectedMateria;
   TextEditingController controller = TextEditingController();
   List<PlatformFile> uploadedFiles = [];
+  List<String> subjects = [];
   int numberQuestion = 5;
   bool penalty = false;
   bool loading = false;
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      subjects = await Storage.getAllSubjects();
+      if (mounted) {
+        setState(() {});
+      }
+    });
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,7 +61,7 @@ class _NewQuizScreenState extends State<NewQuizScreen> {
               ),
               Wrap(
                 children: [
-                  for (String materia in GeminiCostants.materie)
+                  for (String materia in subjects)
                     Padding(
                         padding: const EdgeInsets.only(right: 8, bottom: 8),
                         child: SubjectTile(
@@ -59,7 +71,7 @@ class _NewQuizScreenState extends State<NewQuizScreen> {
                                 selectedMateria = materia;
                               });
                             },
-                            selected: materia == selectedMateria))
+                            selected: materia == selectedMateria)),
                 ],
               ),
               const SizedBox(
@@ -186,9 +198,7 @@ class _NewQuizScreenState extends State<NewQuizScreen> {
                 child: PrimaryButton(
                   loading: loading,
                   onTap: () async {
-                    if (
-                        selectedMateria != null &&
-                        controller.text.isNotEmpty) {
+                    if (selectedMateria != null && controller.text.isNotEmpty) {
                       try {
                         setState(() {
                           loading = true;
@@ -200,11 +210,11 @@ class _NewQuizScreenState extends State<NewQuizScreen> {
                           List? lista;
                           if (numberQuestion >= 5) {
                             lista = await GeminiProvider.elaboraPdf(
-                                5, controller.text);
+                                5, controller.text, uploadedFiles);
                             numberQuestion -= 5;
                           } else {
                             lista = await GeminiProvider.elaboraPdf(
-                                 numberQuestion, controller.text);
+                                numberQuestion, controller.text, uploadedFiles);
                             numberQuestion = 0;
                           }
                           if (lista != null) {
@@ -233,6 +243,18 @@ class _NewQuizScreenState extends State<NewQuizScreen> {
                       } catch (e) {
                         debugPrint(e.toString(), wrapWidth: 1024);
                       }
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            backgroundColor:
+                                const Color(0xff858585).withOpacity(0.8),
+                            content: const Text(
+                                "La materia e il titolo sono campi obbligatori"),
+                          );
+                        },
+                      );
                     }
                   },
                   text: "CREA NUOVO QUIZ",
