@@ -2,6 +2,8 @@
 
 SmarterAI is a Flutter application that leverages Google Generative AI to create multiple-choice quizzes for learning purposes. It analyzes both textual prompts and PDF files, making it an excellent tool for exam preparation. For instance, you can upload your professor's lecture slides as PDF files and generate questions to review after studying.
 
+Try it: [SmarterAI](https://smarterai-29ddf.web.app)
+
 ## Features
 
 - **Generative AI Integration**: Uses Google Generative AI with the Gemini 1.5 Flash model to generate quizzes.
